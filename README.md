@@ -10,12 +10,13 @@ Download a course by running the download command:
 ```
 npm i
 npm run download [COURSE_URL]
+
+# For example
+npm run download https://egghead.io/courses/build-an-app-with-react-suspense
 ```
 
-For example `npm run download https://egghead.io/courses/build-an-app-with-react-suspense`
 
-
-Download all courses by running the batch command:
+Download all courses by running the backup command:
 ```
 npm i
 npm run backup
