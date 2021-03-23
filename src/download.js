@@ -19,14 +19,17 @@ const downloadCourse = async (url) => {
       name: $(el).text(),
     }))
   );
+  console.log(`🔗 ${lessons.length} lesson links fetched`);
 
   const directory = `lessons/${course}`;
-  console.log(`\nWriting: ${directory}`);
+  console.log(`📂 Created directory ${directory}`);
   mkdirp.sync(directory);
 
-  console.log(lessons);
-
   for (lesson of lessons) {
+    printProgress(
+      `🎬 Downloading: ${lesson.index}/${lessons.length} - ${lesson.name}`
+    );
+
     await downloadVideo(lesson, directory);
   }
 };
@@ -34,23 +37,34 @@ const downloadCourse = async (url) => {
 const downloadVideo = async (lesson, path) => {
   const { url, name, index } = lesson;
   const downloadUrl = await getDownloadUrlForVideo(`${url}/signed_download`);
+
+  if (!downloadUrl) throw Error;
+
   const response = await fetch(`${downloadUrl}`);
   const buffer = await response.buffer();
 
-  fs.writeFile(`${path}/${index}-${name}.mp4`, buffer, () =>
-    console.log(`${name} successfully downloaded!`)
-  );
+  fs.writeFile(`${path}/${index}-${name}.mp4`, buffer, () => {});
 };
 
 const getDownloadUrlForVideo = async (url) => {
-  const response = await fetch(url, {
-    headers: {
-      Authorization: process.env.AUTH,
-    },
-  });
-  const downloadUrl = await response.text();
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: process.env.AUTH,
+      },
+    });
+    const downloadUrl = await response.text();
 
-  return downloadUrl;
+    return downloadUrl;
+  } catch (e) {
+    return false;
+  }
 };
+
+function printProgress(progress) {
+  process.stdout.clearLine();
+  process.stdout.cursorTo(0);
+  process.stdout.write(progress);
+}
 
 module.exports = downloadCourse;
